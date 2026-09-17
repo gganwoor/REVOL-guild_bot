@@ -1,0 +1,21 @@
+{
+  "name": "revol-guild_bot",
+  "version": "1.0.0",
+  "private": true,
+  "description": "REVOLUTION 길드 봇",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gganwoor/REVOL-guild_bot.git"
+  },
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "bugs": {
+    "url": "https://github.com/gganwoor/REVOL-guild_bot/issues"
+  },
+  "homepage": "https://github.com/gganwoor/REVOL-guild_bot#readme"
+}
