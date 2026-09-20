@@ -4,7 +4,9 @@ import { env } from "./env.js";
 import { fetchAllPosts, fetchPostBody } from "./recruit/fetchPosts.js";
 import { parseRecruitPost } from "./recruit/parse.js";
 import { watchApplications } from "./applications/watch.js";
-import { addMember, countMembers, upsertClub } from "./db.js";
+import { addMember, countMembers, upsertClub, isHandled, markHandled, getClub } from "./db.js";
+import { sendCard } from "./applications/card.js";
+import { handleCardButtons } from "./applications/handle.js";
 
 const client = new Client({
     intents: [
@@ -54,9 +56,28 @@ client.once(Events.ClientReady, async (ready) => {
 });
 
 watchApplications(client, async (application) => {
-    console.log(
-        `[신청] ${application.postName} . <@${application.userId}> . ${application.content}`,
-    );
+    if(isHandled(application.messageId)) return;
+
+    const club = getClub(application.postId);
+
+    if(club?.leader_id === application.userId) {
+        console.log(`[제외] 길드장 본인의 댓글 - ${application.postName}`);
+        return;
+    } 
+
+    const channel = await client.channels.fetch(env.staffChannelId);
+
+    if(channel?.type !== ChannelType.GuildText){
+        console.error("STAFF_CHANNEL_ID가 텍스트 채널이 아닙니다.");
+        return;
+    }
+
+    await sendCard(channel, application);
+    markHandled(application.messageId, application.postId, application.userId);
+
+    console.log(`[카드] ${application.postName} . ${application.userId}`);
 });
+
+handleCardButtons(client);
 
 await client.login(env.token);
