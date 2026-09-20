@@ -1,10 +1,5 @@
-import { Client, Events, GatewayIntentBits } from "discord.js";
-
-const token = process.env.DISCORD_TOKEN;
-
-if(!token){
-    throw new Error("DISCORD_TOKEN이 비어 있습니다.");
-}
+import { ChannelType, Client, Events, GatewayIntentBits } from "discord.js";
+import { env } from "./env.js";
 
 const client = new Client({
     intents: [
@@ -16,13 +11,16 @@ const client = new Client({
     ],
 });
 
-client.once(Events.ClientReady, (ready) => {
+client.once(Events.ClientReady, async (ready) => {
     console.log(`${ready.user.tag} 로그인 완료`);
-    console.log(`참여 중인 서버 ${ready.guilds.cache.size}개`);
 
-    for(const guild of ready.guilds.cache.values()){
-        console.log(`- ${guild.name} (${guild.id})`);
+    const board = await ready.channels.fetch(env.boardForumId);
+
+    if(board?.type !== ChannelType.GuildForum){
+        throw new Error("BOARD_FORUM_ID가 포럼 채널이 아닙니다.");
     }
+
+    console.log(`게시판 연결됨: ${board.name}`);
 });
 
-await client.login(token);
+await client.login(env.token);
