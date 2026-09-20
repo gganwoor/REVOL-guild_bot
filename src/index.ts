@@ -3,6 +3,7 @@ import { CLUB_TYPES } from "./config.js";
 import { env } from "./env.js";
 import { fetchAllPosts, fetchPostBody } from "./recruit/fetchPosts.js";
 import { parseRecruitPost } from "./recruit/parse.js";
+import { watchApplications } from "./applications/watch.js";
 
 const client = new Client({
     intents: [
@@ -45,6 +46,12 @@ client.once(Events.ClientReady, async (ready) => {
             `   [인식] ${name} . ${CLUB_TYPES[type].label} . 길드장 ${leaderId} . 최소 ${CLUB_TYPES[type].minMembers}명`,
         );
     }
+});
+
+watchApplications(client, async (application) => {
+    console.log(
+        `[신청] ${application.postName} . <@${application.userId}> . ${application.content}`,
+    );
 });
 
 await client.login(env.token);
