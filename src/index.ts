@@ -4,6 +4,7 @@ import { env } from "./env.js";
 import { fetchAllPosts, fetchPostBody } from "./recruit/fetchPosts.js";
 import { parseRecruitPost } from "./recruit/parse.js";
 import { watchApplications } from "./applications/watch.js";
+import { addMember, countMembers, upsertClub } from "./db.js";
 
 const client = new Client({
     intents: [
@@ -42,8 +43,12 @@ client.once(Events.ClientReady, async (ready) => {
         }
 
         const { type, name, leaderId } = result.post;
+
+        upsertClub({ postId: post.id, name, type, leaderId });
+        addMember(post.id, leaderId);
+
         console.log(
-            `   [인식] ${name} . ${CLUB_TYPES[type].label} . 길드장 ${leaderId} . 최소 ${CLUB_TYPES[type].minMembers}명`,
+            `   [인식] ${name} . ${CLUB_TYPES[type].label} . ${countMembers(post.id)}/${CLUB_TYPES[type].minMembers}명`,
         );
     }
 });
