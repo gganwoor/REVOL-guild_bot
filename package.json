@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx watch --env-file=.env.test src/index.ts",
     "typecheck": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "test": "vitest run"
   },
   "repository": {
     "type": "git",
@@ -23,7 +24,8 @@
   "devDependencies": {
     "@types/node": "^24.13.6",
     "tsx": "^4.23.14",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.1"
   },
   "dependencies": {
     "discord.js": "^14.27.0"
