@@ -92,3 +92,17 @@ export function markHandled(messageId: string, postId: string, userId: string): 
         `INSERT OR IGNORE INTO handled_messages (message_id, post_id, user_id) VALUES (?, ?, ?)`,
     ).run(messageId, postId, userId);
 }
+
+export function markOpened(postId: string, roleId: string, categoryId: string): void {
+    db.prepare(
+        `UPDATE clubs SET status = 'active', role_id = ?, category_id = ? WHERE post_id = ?`,
+    ).run(roleId, categoryId, postId);
+}
+
+export function listMembers(postId: string): string[] {
+    const rows = db
+        .prepare("SELECT user_id FROM members WHERE post_id = ?")
+        .all(postId) as { user_id: string }[];
+
+    return rows.map((row) => row.user_id);
+}

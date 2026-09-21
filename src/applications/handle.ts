@@ -1,7 +1,8 @@
 import { Events, MessageFlags, type Client } from "discord.js";
-import { addMember, countMembers, getClub, markHandled } from "../db.js";
+import { addMember, countMembers, getClub, markHandled, listMembers, markOpened } from "../db.js";
 import { CLUB_TYPES } from "../config.js";
 import { APPROVE, IGNORE } from "./card.js"
+import { createClub } from "../opening/createClub.js";
 
 export function handleCardButtons(client: Client): void {
     client.on(Events.InteractionCreate, async (interaction) => {
@@ -41,7 +42,30 @@ export function handleCardButtons(client: Client): void {
         });
 
         if(count >= rule.minMembers && club.status === "recruiting") {
-            console.log(`[개설 대상] ${club.name} - ${count}/${rule.minMembers}명`);
+            if(!interaction.guild) return;
+
+            try{
+                const { role, category } = await createClub({
+                    server: interaction.guild,
+                    name: club.name,
+                    type: club.type,
+                    memberIds: listMembers(postId),
+                });
+
+                markOpened(postId, role.id, category.id);
+
+                await interaction.followUp({
+                    content: `**${club.name}** 길드가 개설되었습니다. ${role}. ${category}`,
+                });
+
+                console.log(`[개설] ${club.name} - 역할 ${role.id}, 카테고리 ${category.id}`);
+            } catch(error){
+                console.error(`[개설 실패] ${club.name}`, error);
+
+                await interaction.followUp({
+                    content: `**${club.name}** 개설 중 오류가 발생했습니다.`
+                });
+            }
         }
     });
 }
